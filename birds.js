@@ -5,7 +5,6 @@ const githubLink = "https://petercai0131.github.io/CSE163_Birds/";
 
 const width = 900;
 const height = 900;
-let state = -1;
 
 const continentToName = {
   "NA": "North America",
@@ -21,6 +20,18 @@ const options = [
   "", "color", "order", "family", "general_name",
   "habitat", "food", "nesting", "behavior", "conservation",
 ]
+const optionToName = {
+  "": "",
+  "color": "Color",
+  "order": "Order",
+  "family": "Family",
+  "general_name": "General Name",
+  "habitat": "Habitat",
+  "food": "Food",
+  "nesting": "Nesting",
+  "behavior": "Behavior",
+  "conservation": "Conservation",
+}
 let sunburstOrder = ["family", "color"];
 let singleBird = "";
 
@@ -34,9 +45,10 @@ const centerDiv = root.append("div")
   .style("display", "flex")
   .style("justify-content", "space-evenly");
 const leftDiv = centerDiv.append("div")
-  .attr("id", "leftDiv");
-const arrowDiv = centerDiv.append("div")
-  .attr("id", "arrowDiv");
+  .attr("id", "leftDiv")
+  .style("width", "300px");
+// const arrowDiv = centerDiv.append("div")
+//   .attr("id", "arrowDiv");
 const mainDiv = centerDiv.append("div")
   .attr("id", "mainDiv")
   .attr("width", width)
@@ -45,7 +57,8 @@ const mainDiv = centerDiv.append("div")
   .style("justify-content", "space-evenly")
   .style("align-items", "center");
 const rightDiv = centerDiv.append("div")
-  .attr("id", "rightDiv");
+  .attr("id", "rightDiv")
+  .style("width", "300px");
 const creditsDiv = root.append("div")
   .attr("id", "creditsDiv");
 
@@ -73,8 +86,6 @@ d3.csv(datafile, (d) => {
   }
 }).then(() => {
   title("Birds and Locations");
-  arrowPanel();
-  dropdownMenus();
   credits(githubLink);
   handleToGeomap();
 });
@@ -84,26 +95,23 @@ d3.csv(datafile, (d) => {
 // HANDLE CLICKS
 // ____________________________________________________________________________
 function handleToSunburst(birdList, rootName, divID = "mainDiv") {
-  console.log('tosunburst')
-  state = 1;
   d3.select(`#${divID}`).html(null);
-  d3.selectAll(".geomapHidden").style("opacity", "1");
-  d3.selectAll(".geomapHidden3").style("opacity", "1");
+  createLeftPanel();
 
   drawSunburst(birdList, rootName, divID);
 }
 
-function handleToGeomap(divID = "mainDiv") {
-  console.log("to map")
-  state = 0;
+function handleUpdateSunburst(birdList, rootName, divID = "mainDiv") {
   d3.select(`#${divID}`).html(null);
-  d3.selectAll(".geomapHidden").style("opacity", "0");
-  d3.selectAll(".geomapHidden2").style("opacity", "0");
-  d3.selectAll(".geomapHidden3").style("opacity", "0");
+  drawSunburst(birdList, rootName, divID);
+}
 
+function handleToGeomap(divID = "mainDiv") {
+  d3.select(`#${divID}`).html(null);
+  d3.select("#leftDiv").html(null);
+  d3.select("#rightDiv").html(null);
 
   geomap(divID);
-
 }
 
 function handleSingleBird(birdName = singleBird, divID = "rightDiv") {
@@ -124,8 +132,8 @@ function title(text = "Title", divID = "titleDiv") {
 
   const finalText = [
   "　　Recent studies show that there are 9,956 different species of birds – many more than there are mammals (5,416) or reptiles (842). They range in size from hummingbirds (that weigh less than a tenth of an ounce) to ostriches (that weigh 220-250 pounds) and come in every color imaginable. Their variety is profound. Birds are fascinating creatures that have features unlike other animals. They make incredible bonds with their surroundings and communicate with the environment on levels unrivaled by other species. Their unique anatomies, profound intelligence, and huge diversity make them truly special.","",
-  "　　We collected the data of 264 species of birds and their color, food, habitat, scientific classification, and many more qualities, and arranged them into a Sunburst graph for you to look through. Click on a continent to see all the birds that live there, and then select the categories (order matters!) of the Sunburst on the left. For example, if you click on South America and set the categories to General Name > Food, you can see that most birds within the same general name share the same diet, whereas if you change the Food category to Nesting, a larger variety will appear within most groups.","",
-  "　　If you want to access the world map from the sunburst, then click on the triangle which is in between the layers selection and the sunburst.",
+  "　　We collected the data of 264 species of birds and their color, food, habitat, scientific classification, and many more qualities, and arranged them into a Sunburst graph for you to look through. Click on a continent to see all the birds that live there, and then select the categories (order matters!) of the Sunburst on the left and enter them with the 'Set Options' button. For example, if you click on South America and set the categories to General Name > Food, you can see that most birds within the same general name share the same diet, whereas if you change the Food category to Nesting, a larger variety will appear within most groups.","",
+  "　　You can click on a section of the Sunburst to zoom in, and click on a bird's section to see more details about it. Clicking the center of the Sunburst will zoom out one layer, and clicking outside of it will zoom all the way back out. If you want to go back to the world map from the Sunburst, click on the triangle left of the Sunburst.",
   ];
     
   d3.select(`#${divID}`).append("div")
@@ -262,7 +270,22 @@ function credits(githubLink, divID = "creditsDiv") {
 //
 // LEFT AND RIGHT PANELS
 // ____________________________________________________________________________
-function dropdownMenus(order = sunburstOrder, propOptions = options, divID = "leftDiv") {
+function createLeftPanel(divID = "leftDiv") {
+  const left = d3.select(`#${divID}`)
+    .style("display", "flex")
+    .style("flex-direction", "row")
+    .style("justify-content", "space-between");
+  
+  left.append("div")
+    .attr("id", "sunburstOptionsDiv");
+  left.append("div")
+    .attr("id", "arrowDiv");
+  
+  dropdownMenus();
+  arrowPanel();
+}
+
+function dropdownMenus(order = sunburstOrder, propOptions = options, divID = "sunburstOptionsDiv") {
   const main = d3.select(`#${divID}`)
     .attr("class", "geomapHidden3")
     .style("display", "flex")
@@ -279,18 +302,22 @@ function dropdownMenus(order = sunburstOrder, propOptions = options, divID = "le
     .data(numOptions)
     .enter()
     .append("div")
+      .text(function (d, i) {return `${i+1}. `;})
+      .style("margin-top", "2px")
+      .style("margin-bottom", "2px")
     .append("select")
-    .attr("id", function (d) { return `dropdown${d}`; })
-    .attr("name", function (d) { return `dropdown${d}`; })
-    .selectAll("option")
-    .data(propOptions)
-    .enter()
-    .append("option")
-    .attr("value", function (d) { return d; })
-    .text(function (d) { return d; });
+      .attr("id", function (d) { return `dropdown${d}`; })
+      .attr("name", function (d) { return `dropdown${d}`; })
+      .selectAll("option")
+      .data(propOptions)
+      .enter()
+      .append("option")
+      .attr("value", function (d) { return d; })
+      .text(function (d) { return optionToName[d]; });
 
   main.append("button")
     .text("Set Options")
+    .style("margin-top", "2px")
     .on("click", function () {
       const newOrder = [];
       for (let i = 0; i < 9; i++) {
@@ -299,13 +326,10 @@ function dropdownMenus(order = sunburstOrder, propOptions = options, divID = "le
           newOrder.push(val);
         }
       }
-      console.log(newOrder);
       if (newOrder.length > 0) {
         sunburstOrder = newOrder;
       }
-      if (state === 1) {
-        handleToSunburst(birdList, rootName);
-      }
+      handleUpdateSunburst(birdList, rootName);
     });
 }
 
@@ -330,6 +354,7 @@ function createBirdOverview(birdName = singleBird, divID = "rightDiv", width = 3
   birdProps = datamap.get(birdName);
   const main = d3.select(`#${divID}`)
     .attr("class", "geomapHidden2")
+    .style("overflow", "hidden")
     .style("display", "flex")
     .style("flex-direction", "column")
     .style("justify-content", "flex-start");// "space-around");
@@ -362,7 +387,6 @@ function createBirdOverview(birdName = singleBird, divID = "rightDiv", width = 3
     .style("margin-top", "10px");
   const rowProps = ["Habitat", "Food", "Nesting", "Behavior", "Conservation"];
   for (rowProp of rowProps) {
-    console.log(rowProp);
     const row = table.append("tr");
     row.append("td")
       .text(rowProp)
@@ -372,10 +396,13 @@ function createBirdOverview(birdName = singleBird, divID = "rightDiv", width = 3
     row.append("td")
       .text(birdProps[rowProp.toLowerCase()]);
   }
-  // const description = main.append("div")
-  //   .text(birdProps.aab_description)
-  //   .style("word-wrap", "break-word")
-  //   .attr("width", "100%");
+  const description = main.append("div")
+    .attr("width", width)
+    .style("overflow", "hidden")
+    .style("margin-top", "10px")
+    .append("span")
+      .text(birdProps.aab_description)
+      .style("word-wrap", "break-word");
 
 
 
@@ -481,6 +508,10 @@ function Sunburst(data, { // data is either tabular (array of objects) or hierar
   fill = "#ccc", // fill for arcs (if no color encoding)
   fillOpacity = 0.6, // fill opacity for arcs
 } = {}) {
+  // Tooltip
+  var tooltip = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
 
   // If id and parentId options are specified, or the path option, use d3.stratify
   // to convert tabular data to a hierarchy; otherwise we assume that the data is
@@ -505,8 +536,7 @@ function Sunburst(data, { // data is either tabular (array of objects) or hierar
     root.children.forEach((child, i) => child.index = i);
   }
 
-  const
-    maxRadius = (Math.min(width, height) / 2) - 5;
+  const maxRadius = (Math.min(width, height) / 2) - 5;
 
   const formatNumber = d3.format(',d');
 
@@ -516,7 +546,6 @@ function Sunburst(data, { // data is either tabular (array of objects) or hierar
 
   const y = d3.scaleSqrt()
     .range([maxRadius * .1, maxRadius]);
-
 
   const partition = d3.partition();
 
@@ -575,11 +604,13 @@ function Sunburst(data, { // data is either tabular (array of objects) or hierar
     .append('g').attr('class', 'slice')
     .on('click', d => {
       d3.event.stopPropagation();
-      focusOn(d);
+      if (d.children) {
+        focusOn(d);
+      }
     });
 
-  newSlice.append('title')
-    .text(d => d.data.name + '\n' + formatNumber(d.value));
+  // newSlice.append('title')
+  //   .text(d => d.data.name + '\n' + formatNumber(d.value));
 
   newSlice.append('path')
     .attr('class', 'main-arc')
@@ -592,6 +623,27 @@ function Sunburst(data, { // data is either tabular (array of objects) or hierar
         singleBird = d.data.name;
         handleSingleBird(singleBird);
       }
+    })
+    // Tooltip
+    .on("mousemove", function (d) {
+      tooltip.style("opacity", 1)
+        .style("left", (d3.event.pageX) + "px")
+        .style("top", (d3.event.pageY) + "px");
+      if (d.children) {
+        tooltip
+          .html("Category: " + d.data.name +
+          "<br>Spieces: " + formatNumber(d.value));
+      } else {
+        tooltip
+          .html(d.data.name)
+        tooltip.append("div")
+          .append("img")
+            .attr("src", birdMap.get(d.data.name).image)
+            .attr("width", 200);
+      }
+    })
+    .on("mouseout", function (d) {
+      tooltip.style("opacity", 0)
     });
 
   newSlice.append('path')
@@ -603,7 +655,6 @@ function Sunburst(data, { // data is either tabular (array of objects) or hierar
     .attr('display', d => textFits(d) ? null : 'none');
 
   // Add white contour
-
 
   text.append('textPath')
     .attr('startOffset', '50%')
@@ -726,7 +777,7 @@ function geomap(
     .attr("id", "geomap")
     .attr("width", width)
     .attr("height", height)
-    .attr("transform", "translate(-100," + 0 + ")")
+    .attr("transform", "translate(20, 0)")
     .attr("style", "max-width: 100%; height: auto; height: intrinsic;")
     .attr("font-size", 12)
     .attr("text-anchor", "middle");
