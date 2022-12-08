@@ -72,7 +72,7 @@ d3.csv(datafile, (d) => {
     locationToBird.get(locations[i]).push(d["real_name"]);
   }
 }).then(() => {
-  title("Birds");
+  title("Birds and Locations");
   arrowPanel();
   dropdownMenus();
   credits(githubLink);
@@ -83,23 +83,32 @@ d3.csv(datafile, (d) => {
 //
 // HANDLE CLICKS
 // ____________________________________________________________________________
-function handleToSunburst(birdList, rootName, divID="mainDiv") {
+function handleToSunburst(birdList, rootName, divID = "mainDiv") {
   console.log('tosunburst')
   state = 1;
   d3.select(`#${divID}`).html(null);
   d3.selectAll(".geomapHidden").style("opacity", "1");
+  d3.selectAll(".geomapHidden3").style("opacity", "1");
+
   drawSunburst(birdList, rootName, divID);
 }
 
-function handleToGeomap(divID="mainDiv") {
+function handleToGeomap(divID = "mainDiv") {
   console.log("to map")
   state = 0;
   d3.select(`#${divID}`).html(null);
   d3.selectAll(".geomapHidden").style("opacity", "0");
+  d3.selectAll(".geomapHidden2").style("opacity", "0");
+  d3.selectAll(".geomapHidden3").style("opacity", "0");
+
+
   geomap(divID);
+
 }
 
-function handleSingleBird(birdName=singleBird, divID="rightDiv") {
+function handleSingleBird(birdName = singleBird, divID = "rightDiv") {
+  d3.selectAll(".geomapHidden2").style("opacity", "1");
+
   d3.select(`#${divID}`).html(null);
   createBirdOverview(birdName, divID);
 }
@@ -108,13 +117,28 @@ function handleSingleBird(birdName=singleBird, divID="rightDiv") {
 //
 // TITLE AND CREDITS
 // ____________________________________________________________________________
-function title(text="Title", divID="titleDiv") {
+function title(text = "Title", divID = "titleDiv") {
   d3.select(`#${divID}`).append("h1")
     .attr("class", "title")
     .text(text);
+
+  const finalText = [
+  "　　Recent studies show that there are 9,956 different species of birds – many more than there are mammals (5,416) or reptiles (842). They range in size from hummingbirds (that weigh less than a tenth of an ounce) to ostriches (that weigh 220-250 pounds) and come in every color imaginable. Their variety is profound. Birds are fascinating creatures that have features unlike other animals. They make incredible bonds with their surroundings and communicate with the environment on levels unrivaled by other species. Their unique anatomies, profound intelligence, and huge diversity make them truly special.","",
+  "　　We collected the data of 264 species of birds and their color, food, habitat, scientific classification, and many more qualities, and arranged them into a Sunburst graph for you to look through. Click on a continent to see all the birds that live there, and then select the categories (order matters!) of the Sunburst on the left. For example, if you click on South America and set the categories to General Name > Food, you can see that most birds within the same general name share the same diet, whereas if you change the Food category to Nesting, a larger variety will appear within most groups.","",
+  "　　If you want to access the world map from the sunburst, then click on the triangle which is in between the layers selection and the sunburst.",
+  ];
+    
+  d3.select(`#${divID}`).append("div")
+    .attr("class", "final_text")
+    .selectAll("span")
+    .data(finalText)
+    .enter()
+    .append("span")
+    .text(function (d) { return d; })
+    .append("br");
 }
 
-function credits(githubLink, divID="creditsDiv") {
+function credits(githubLink, divID = "creditsDiv") {
   const center = d3.select(`#${divID}`).append("div");
   const row = d3.select(`#${divID}`).append("div")
     .style("margin-top", "10px")
@@ -140,7 +164,7 @@ function credits(githubLink, divID="creditsDiv") {
     .data(members)
     .enter()
     .append("span")
-    .text(function(d) {return d;})
+    .text(function (d) { return d; })
     .append("br");
 
   // Github Link
@@ -150,9 +174,9 @@ function credits(githubLink, divID="creditsDiv") {
   center.append("div")
     .attr("class", "normal_text")
     .append("a")
-      .text(githubLink)
-      .attr("href", githubLink);
-  
+    .text(githubLink)
+    .attr("href", githubLink);
+
   // Designed for
   center.append("div")
     .attr("class", "subtitle")
@@ -164,8 +188,8 @@ function credits(githubLink, divID="creditsDiv") {
   // Files Submitted
   const filesSubmitted = row.append("div");
   filesSubmitted.append("div")
-      .attr("class", "subtitle")
-      .text("Files Submitted:");
+    .attr("class", "subtitle")
+    .text("Files Submitted:");
   const files = ["index.html", "birds.js", "birds.css", geoJSONfile, datafile];
   filesSubmitted.append("div")
     .attr("class", "normal_text")
@@ -173,9 +197,9 @@ function credits(githubLink, divID="creditsDiv") {
     .data(files)
     .enter()
     .append("span")
-    .text(function(d) {return d;})
+    .text(function (d) { return d; })
     .append("br");
-  
+
   // Data Sources
   const dataSources = row.append("div");
   dataSources.append("div")
@@ -191,8 +215,8 @@ function credits(githubLink, divID="creditsDiv") {
     .data(sources)
     .enter()
     .append("a")
-    .text(function(d) {return d[0];})
-    .attr("href", function(d) {return d[1];})
+    .text(function (d) { return d[0]; })
+    .attr("href", function (d) { return d[1]; })
     .append("br");
 
   // Relevant Visualizations
@@ -210,8 +234,8 @@ function credits(githubLink, divID="creditsDiv") {
     .data(visualizations)
     .enter()
     .append("a")
-    .text(function(d) {return d[0];})
-    .attr("href", function(d) {return d[1];})
+    .text(function (d) { return d[0]; })
+    .attr("href", function (d) { return d[1]; })
     .append("br");
 
   // Code Sources
@@ -229,21 +253,22 @@ function credits(githubLink, divID="creditsDiv") {
     .data(codes)
     .enter()
     .append("a")
-    .text(function(d) {return d[0];})
-    .attr("href", function(d) {return d[1];})
-    .append("br");
+    .text(function (d) { return d[0]; })
+    .attr("href", function (d) { return d[1]; })
+    .append("br"); 
 }
 
 // ____________________________________________________________________________
 //
 // LEFT AND RIGHT PANELS
 // ____________________________________________________________________________
-function dropdownMenus(order=sunburstOrder, propOptions=options, divID="leftDiv") {
+function dropdownMenus(order = sunburstOrder, propOptions = options, divID = "leftDiv") {
   const main = d3.select(`#${divID}`)
+    .attr("class", "geomapHidden3")
     .style("display", "flex")
     .style("flex-direction", "column")
     .style("justify-content", "center");
-  
+
   main.append("div")
     .text("Sunburst Category Options:");
 
@@ -255,18 +280,18 @@ function dropdownMenus(order=sunburstOrder, propOptions=options, divID="leftDiv"
     .enter()
     .append("div")
     .append("select")
-    .attr("id", function (d) {return `dropdown${d}`;})
-    .attr("name", function (d) {return `dropdown${d}`;})
-      .selectAll("option")
-      .data(propOptions)
-      .enter()
-      .append("option")
-      .attr("value", function (d) {return d;})
-      .text(function (d) {return d;});
+    .attr("id", function (d) { return `dropdown${d}`; })
+    .attr("name", function (d) { return `dropdown${d}`; })
+    .selectAll("option")
+    .data(propOptions)
+    .enter()
+    .append("option")
+    .attr("value", function (d) { return d; })
+    .text(function (d) { return d; });
 
   main.append("button")
     .text("Set Options")
-    .on("click", function() {
+    .on("click", function () {
       const newOrder = [];
       for (let i = 0; i < 9; i++) {
         let val = d3.select(`#dropdown${i}`).node().value;
@@ -284,7 +309,7 @@ function dropdownMenus(order=sunburstOrder, propOptions=options, divID="leftDiv"
     });
 }
 
-function arrowPanel(divID="arrowDiv") {
+function arrowPanel(divID = "arrowDiv") {
   d3.select(`#${divID}`)
     .style("display", "flex")
     .style("flex-direction", "column")
@@ -294,15 +319,17 @@ function arrowPanel(divID="arrowDiv") {
     .attr("class", "geomapHidden")
     .attr("width", "20")
     .attr("height", "20")
-    .on("click", function() {handleToGeomap()});
+    .on("click", function () { handleToGeomap() });
   backButton.append("polygon")
     .attr("points", "0,10 20,0 20,20")
     .attr("fill", "#777777");
+
 }
 
-function createBirdOverview(birdName=singleBird, divID="rightDiv", width=300, datamap=birdMap) {
+function createBirdOverview(birdName = singleBird, divID = "rightDiv", width = 300, datamap = birdMap) {
   birdProps = datamap.get(birdName);
   const main = d3.select(`#${divID}`)
+    .attr("class", "geomapHidden2")
     .style("display", "flex")
     .style("flex-direction", "column")
     .style("justify-content", "flex-start");// "space-around");
@@ -316,7 +343,7 @@ function createBirdOverview(birdName=singleBird, divID="rightDiv", width=300, da
     .attr("src", birdProps.image)
     .attr("alt", birdName)
     .attr("width", width);
-  
+
   const information = main.append("div")
     .style("display", "flex")
     .style("flex-direction", "column")
@@ -330,7 +357,7 @@ function createBirdOverview(birdName=singleBird, divID="rightDiv", width=300, da
     .text(`Order: ${birdProps.order}`);
   leftInfo.append("div")
     .text(`Family: ${birdProps.family}`);
-  
+
   const table = main.append("div").append("table")
     .style("margin-top", "10px");
   const rowProps = ["Habitat", "Food", "Nesting", "Behavior", "Conservation"];
@@ -349,6 +376,62 @@ function createBirdOverview(birdName=singleBird, divID="rightDiv", width=300, da
   //   .text(birdProps.aab_description)
   //   .style("word-wrap", "break-word")
   //   .attr("width", "100%");
+
+
+
+  (function () {
+
+    var context = new AudioContext();
+    var analyser = context.createAnalyser();
+    analyser.fftSize = 2048;
+    var frequencyData = new Uint8Array(analyser.frequencyBinCount);
+
+    ("#player").bind('canplay', function () {
+      var source = context.createMediaElementSource(this);
+      source.connect(analyser);
+      analyser.connect(context.destination);
+    });
+
+    var width = 800,
+      height = 600,
+      barPadding = 0;
+
+    var svg = d3.select('#visualiser')
+      .append('svg')
+      .attr('width', width)
+      .attr('height', height);
+
+
+    var update = function (data) {
+
+      rect = svg.selectAll('rect')
+        .data(data)
+
+      rect.enter().append('rect');
+
+      rect.attr('width', function () {
+        return width / data.length - barPadding;
+      })
+        .attr('height', function (d) {
+          return d * 1000;
+        })
+        .attr('x', function (d, i) {
+          return i * width / data.length;
+        })
+        .attr('y', function (d) {
+          return height - d;
+        })
+        .attr('fill', function (d) {
+          return "rgb(0, 0, " + (d * 10) + ")";
+        });
+
+    };
+    update(frequencyData);
+    d3.timer(function () {
+      analyser.getByteFrequencyData(frequencyData);
+      update(frequencyData);
+    });
+  });
 }
 
 // ____________________________________________________________________________
@@ -356,8 +439,8 @@ function createBirdOverview(birdName=singleBird, divID="rightDiv", width=300, da
 // SUNBURST
 // ____________________________________________________________________________
 
-function drawSunburst(list = birdList, root, divID="sunburstDiv") {
-  if (list.length === 0) {return;}
+function drawSunburst(list = birdList, root, divID = "sunburstDiv") {
+  if (list.length === 0) { return; }
   // sunburstDiv.html(null);
   const sunburstJSONdata = createSunburstJSON(list, root, sunburstOrder)
   Sunburst(sunburstJSONdata, {
@@ -404,7 +487,7 @@ function Sunburst(data, { // data is either tabular (array of objects) or hierar
   // specified as an object {children} with nested objects (a.k.a. the “flare.json”
   // format), and use d3.hierarchy.
   const root = path != null ? d3.stratify().path(path)(data)
-      : id != null || parentId != null ? d3.stratify().id(id).parentId(parentId)(data)
+    : id != null || parentId != null ? d3.stratify().id(id).parentId(parentId)(data)
       : d3.hierarchy(data, children);
 
   // Compute the values of internal nodes by aggregating from the leaves.
@@ -422,63 +505,148 @@ function Sunburst(data, { // data is either tabular (array of objects) or hierar
     root.children.forEach((child, i) => child.index = i);
   }
 
-  // Construct an arc generator.
+  const
+    maxRadius = (Math.min(width, height) / 2) - 5;
+
+  const formatNumber = d3.format(',d');
+
+  const x = d3.scaleLinear()
+    .range([0, 2 * Math.PI])
+    .clamp(true);
+
+  const y = d3.scaleSqrt()
+    .range([maxRadius * .1, maxRadius]);
+
+
+  const partition = d3.partition();
+
   const arc = d3.arc()
-      .startAngle(d => d.x0)
-      .endAngle(d => d.x1)
-      .padAngle(d => Math.min((d.x1 - d.x0) / 2, 2 * padding / radius))
-      .padRadius(radius / 2)
-      .innerRadius(d => d.y0)
-      .outerRadius(d => d.y1 - padding);
+    .startAngle(d => x(d.x0))
+    .endAngle(d => x(d.x1))
+    .innerRadius(d => Math.max(0, y(d.y0)))
+    .outerRadius(d => Math.max(0, y(d.y1)));
 
-  const svg = d3.select(`#${divID}`).append("svg").raise()
-      .attr("viewBox", [
-        (marginRight - marginLeft - width / 2),
-        marginBottom - marginTop - height / 2,
-        width,
-        height
-      ])
-      .attr("width", width)
-      .attr("height", height)
-      .attr("style", "max-width: 100%; height: auto; height: intrinsic;")
-      .attr("font-size", 12)
-      .attr("text-anchor", "middle");
+  const middleArcLine = d => {
+    const halfPi = Math.PI / 2;
+    const angles = [x(d.x0) - halfPi, x(d.x1) - halfPi];
+    const r = Math.max(0, (y(d.y0) + y(d.y1)) / 2);
 
-  const cell = svg
-    .selectAll("a")
-    .data(root.descendants())
-    .join("a")
-      .attr("xlink:href", link == null ? null : d => link(d.data, d))
-      .attr("target", link == null ? null : linkTarget);
+    const middleAngle = (angles[1] + angles[0]) / 2;
+    const invertDirection = middleAngle > 0 && middleAngle < Math.PI; // On lower quadrants write text ccw
+    if (invertDirection) { angles.reverse(); }
 
-  cell.append("path")
-      .attr("d", arc)
-      .attr("fill", color ? d => color(d.ancestors().reverse()[1]?.index) : fill)
-      .attr("fill-opacity", fillOpacity)
-      .on("click", function(d, i) {
-        if (!d.children) {
-          singleBird = d.data.name;
-          handleSingleBird(singleBird);
-        }
+    const path = d3.path();
+    path.arc(0, 0, r, angles[0], angles[1], invertDirection);
+    return path.toString();
+  };
+
+  const textFits = d => {
+    const CHAR_SPACE = 0.5;
+
+    const deltaAngle = x(d.x1) - x(d.x0);
+    const r = Math.max(0, (y(d.y0) + y(d.y1)) / 2);
+    const perimeter = r * deltaAngle;
+
+    return d.data.name.length * CHAR_SPACE < perimeter;
+  };
+
+  const svg = d3.select(`#${divID}`).append('svg')
+    .raise()
+    .attr("viewBox", [
+      (marginRight - marginLeft - width / 2),
+      marginBottom - marginTop - height / 2,
+      width,
+      height
+    ])
+    .attr("width", width)
+    .attr("height", height)
+    .attr("style", "max-width: 100%; height: auto; height: intrinsic;")
+    .attr("font-size", 12)
+    .attr("text-anchor", "middle")
+    .on('click', () => focusOn()); // Reset zoom on canvas click
+
+
+  const slice = svg.selectAll('g.slice')
+    .data(partition(root).descendants());
+
+  slice.exit().remove();
+
+  const newSlice = slice.enter()
+    .append('g').attr('class', 'slice')
+    .on('click', d => {
+      d3.event.stopPropagation();
+      focusOn(d);
+    });
+
+  newSlice.append('title')
+    .text(d => d.data.name + '\n' + formatNumber(d.value));
+
+  newSlice.append('path')
+    .attr('class', 'main-arc')
+    .attr("fill-opacity", fillOpacity)
+
+    .attr("fill", color ? d => color(d.ancestors().reverse()[1]?.index) : fill)
+    .attr('d', arc)
+    .on("click", function (d, i) {
+      if (!d.children) {
+        singleBird = d.data.name;
+        handleSingleBird(singleBird);
+      }
+    });
+
+  newSlice.append('path')
+    .attr('class', 'hidden-arc')
+    .attr('id', (_, i) => `hiddenArc${i}`)
+    .attr('d', middleArcLine);
+
+  const text = newSlice.append('text')
+    .attr('display', d => textFits(d) ? null : 'none');
+
+  // Add white contour
+
+
+  text.append('textPath')
+    .attr('startOffset', '50%')
+    .attr('xlink:href', (_, i) => `#hiddenArc${i}`)
+    .text(d => d.data.name);
+
+  function focusOn(d = { x0: 0, x1: 1, y0: 0, y1: 1 }) {
+    // Reset to top-level if no data point specified
+
+    const transition = svg.transition()
+      .duration(750)
+      .tween('scale', () => {
+        const xd = d3.interpolate(x.domain(), [d.x0, d.x1]),
+          yd = d3.interpolate(y.domain(), [d.y0, 1]);
+        return t => { x.domain(xd(t)); y.domain(yd(t)); };
       });
-      //.each((d) => console.log(d));
 
-  if (label != null) cell
-    .filter(d => (d.y0 + d.y1) / 2 * (d.x1 - d.x0) > 10)
-    .append("text")
-      .attr("transform", d => {
-        if (!d.depth) return;
-        const x = (d.x0 + d.x1) / 2 * 180 / Math.PI;
-        const y = (d.y0 + d.y1) / 2;
-        return `rotate(${x - 90}) translate(${y},0) rotate(${x < 180 ? 0 : 180})`;
-      })
-      .attr("dy", "0.32em")
-      .text(d => label(d.data, d));
+    transition.selectAll('path.main-arc')
+      .attrTween('d', d => () => arc(d));
 
-  if (title != null) cell.append("title")
-      .text(d => title(d.data, d));
+    transition.selectAll('path.hidden-arc')
+      .attrTween('d', d => () => middleArcLine(d));
 
-  return svg.node();
+    transition.selectAll('text')
+      .attrTween('display', d => () => textFits(d) ? null : 'none');
+
+    moveStackToFront(d);
+
+    //
+
+    function moveStackToFront(elD) {
+      svg.selectAll('.slice').filter(d => d === elD)
+        .each(function (d) {
+          this.parentNode.appendChild(this);
+          if (d.parent) { moveStackToFront(d.parent); }
+        })
+    }
+  }
+
+  //**************************
+  // Construct an arc generator.
+
+  /****************** */
 }
 
 // ____________________________________________________________________________
@@ -489,7 +657,7 @@ function Sunburst(data, { // data is either tabular (array of objects) or hierar
 function createSunburstJSON(birdList, rootName, propertyOrder,
   datamap = birdMap) {
   const children = recurSunburstJSON(birdList, propertyOrder, datamap);
-  const sunburstData = {"name": rootName, "children": children}
+  const sunburstData = { "name": rootName, "children": children }
   return sunburstData;
 }
 
@@ -505,13 +673,13 @@ function recurSunburstJSON(keyArr, propertyOrder, datamap = birdMap) {
     // If leaf nodes
     if (newPropertyOrder.length === 0) {
       for (bird of propBirdList) {
-        subChildren.push({"name": bird, "size": 1})
+        subChildren.push({ "name": bird, "size": 1 })
       }
     } else {
       subChildren = recurSunburstJSON(propBirdList, newPropertyOrder, datamap);
     }
 
-    children.push({"name": prop, "children": subChildren});
+    children.push({ "name": prop, "children": subChildren });
   }
   return children;
 }
@@ -544,8 +712,8 @@ function geomap(
 
   // var color = d3.scaleOrdinal(d3.schemeCategory20);
   var color = d3.scaleThreshold()
-  .domain([1, 500, 1000, 2000, 2500, 3000, 3500, 4000])
-  .range(d3.schemeOrRd[9]);
+    .domain([1, 500, 1000, 2000, 2500, 3000, 3500, 4000])
+    .range(d3.schemeOrRd[9]);
 
   // var graticule = d3.geoGraticule();
   var svg = d3.select(`#${divID}`).append("svg").raise()
@@ -558,6 +726,7 @@ function geomap(
     .attr("id", "geomap")
     .attr("width", width)
     .attr("height", height)
+    .attr("transform", "translate(-100," + 0 + ")")
     .attr("style", "max-width: 100%; height: auto; height: intrinsic;")
     .attr("font-size", 12)
     .attr("text-anchor", "middle");
@@ -569,14 +738,14 @@ function geomap(
     .scale(170)
     .translate([width / 2.1, height / 1.6])
     .precision(.1)
-    .rotate([-11,0]);
+    .rotate([-11, 0]);
 
   // Map
   var path = d3.geoPath().projection(projection);
 
   // ?
   svg.append("defs").append("path")
-    .datum({type: "Sphere"})
+    .datum({ type: "Sphere" })
     .attr("id", "sphere")
     .attr("d", path);
 
@@ -592,10 +761,10 @@ function geomap(
   //   .attr("d", path);
 
   mapLegend(svg, color);
-    
-  d3.json(geoJSON).then(function(world) {
+
+  d3.json(geoJSON).then(function (world) {
     var continents = topojson.feature(world, world.objects.continent).features;
-    
+
     // Tooltip
     var tooltip = d3.select("body").append("div")
       .attr("class", "tooltip")
@@ -607,28 +776,28 @@ function geomap(
       .enter()
       .append("path")
       .attr("d", path)
-      .attr("title", function(d,i) { return d.properties.continent; })
-      .style("fill", function(d,i) { return color(d.properties.number); })
-      .on("click", function(d, i) {
+      .attr("title", function (d, i) { return d.properties.continent; })
+      .style("fill", function (d, i) { return color(d.properties.number); })
+      .on("click", function (d, i) {
         birdList = locationToBird.get(d.properties.continent);
         rootName = continentToName[d.properties.continent];
         tooltip.style("opacity", 0)
         handleToSunburst(birdList, rootName);
       })
       //Tooltip
-      .on("mousemove", function(d) {
+      .on("mousemove", function (d) {
         tooltip.style("opacity", 1)
           .html("Continent: " + continentToName[d.properties.continent] +
-                "<br>Spieces: " + d.properties.number)
+            "<br>Spieces: " + d.properties.number)
           .style("left", (d3.event.pageX) + "px")
           .style("top", (d3.event.pageY) + "px")
       })
-      .on("mouseout", function(d) {
+      .on("mouseout", function (d) {
         tooltip.style("opacity", 0)
       });
-    
+
     // Locations of centers of continents
-    var centroids = continents.map(function (d){
+    var centroids = continents.map(function (d) {
       return projection(d3.geoCentroid(d))
     });
 
@@ -637,13 +806,13 @@ function geomap(
       .data(centroids)
       .enter()
       .append("text")
-        .attr("x", function (d){ return d[0]; })
-        .attr("y", function (d){ return d[1]; })
-            .style("fill", "black")
-        .attr("text-anchor", "middle")
-        .text(function(d,i) {
-          return continentToName[continents[i].properties.continent];
-        });
+      .attr("x", function (d) { return d[0]; })
+      .attr("y", function (d) { return d[1]; })
+      .style("fill", "black")
+      .attr("text-anchor", "middle")
+      .text(function (d, i) {
+        return continentToName[continents[i].properties.continent];
+      });
   })
 }
 
@@ -651,36 +820,37 @@ function mapLegend(mapSVG, color) {
   var x = d3.scaleSqrt()
     .domain([0, 4500])
     .rangeRound([440, 950]);
-    
+
   var g = mapSVG.append("g")
     .attr("class", "key")
     .attr("transform", "translate(0,40)");
 
   g.selectAll("rect")
-    .data(color.range().map(function(d) {
+    .data(color.range().map(function (d) {
       d = color.invertExtent(d);
       if (d[0] == null) d[0] = x.domain()[0];
       if (d[1] == null) d[1] = x.domain()[1];
       return d;
     }))
     .enter().append("rect")
-      .attr("height", 8)
-      .attr("x", function(d) { return x(d[0]); })
-      .attr("width", function(d) { return x(d[1]) - x(d[0]); })
-      .attr("fill", function(d) { return color(d[0]); });
-  
+    .attr("height", 8)
+    .attr("x", function (d) { return x(d[0]); })
+    .attr("width", function (d) { return x(d[1]) - x(d[0]); })
+    .attr("fill", function (d) { return color(d[0]); });
+
   g.append("text")
-      .attr("class", "caption")
-      .attr("x", x.range()[0])
-      .attr("y", -6)
-      .attr("fill", "#000")
-      .attr("text-anchor", "start")
-      .attr("font-weight", "bold")
-      .text("Number of Species");
+    .attr("class", "caption")
+    .attr("x", x.range()[0])
+    .attr("y", -6)
+    .attr("fill", "#000")
+    .attr("text-anchor", "start")
+    .attr("font-weight", "bold")
+    .text("Number of Species");
 
   g.call(d3.axisBottom(x)
-      .tickSize(13)
-      .tickValues(color.domain()))
+    .tickSize(13)
+    .tickValues(color.domain()))
+    .attr("transform", "translate(-150,40)")
     .select(".domain")
-      .remove();
+    .remove();
 }
