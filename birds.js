@@ -46,18 +46,20 @@ const centerDiv = root.append("div")
   .style("justify-content", "space-evenly");
 const leftDiv = centerDiv.append("div")
   .attr("id", "leftDiv")
+  .style("margin-left", "20px")
   .style("width", "300px");
-// const arrowDiv = centerDiv.append("div")
-//   .attr("id", "arrowDiv");
 const mainDiv = centerDiv.append("div")
   .attr("id", "mainDiv")
   .attr("width", width)
   .attr("height", height)
+  .style("margin-left", "10px")
+  .style("margin-right", "10px")
   .style("display", "flex")
   .style("justify-content", "space-evenly")
   .style("align-items", "center");
 const rightDiv = centerDiv.append("div")
   .attr("id", "rightDiv")
+  .style("margin-right", "20px")
   .style("width", "300px");
 const creditsDiv = root.append("div")
   .attr("id", "creditsDiv");
